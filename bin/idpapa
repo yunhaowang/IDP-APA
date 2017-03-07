@@ -1,0 +1,183 @@
+#!/usr/bin/env python
+import argparse, sys, os
+from subprocess import call
+
+def main():
+	args = do_inputs()
+	tempdir = setup_tempdir(args.tempdir)
+	udir = os.path.dirname(os.path.realpath(__file__)) + "/../utilities"
+	sys.stdout.write("### Start analysis ###\n")
+	# convert gtf to gpd
+	cmd1 = udir + "/py_idpapa_gtf2gpd.py -p yes -i " + args.annotation + " -o " + tempdir + "/isoform_annotation.gpd"
+	sys.stdout.write("### covert gtf to gpd for annotation library ###\n")
+	sys.stdout.write(cmd1+"\n")
+	call(cmd1.split())
+	# convert sam to gpd
+	cmd2 = udir + "/py_idpapa_sam2gpd.py -i " + args.long_read + " -o " + tempdir + "/long_reads.gpd"
+	sys.stdout.write("### convert sam to gpd for long reads ###\n")
+	sys.stdout.write(cmd2+"\n")
+	call(cmd2.split())
+	# extract polyA reads from short reads
+	if args.lrp == "sr" or args.lrp == "both":
+		cmd3_1 = udir + "/py_idpapa_sam2gpd.py -i " + args.short_read + " -o " + tempdir + "/short_reads.gpd"
+		cmd3 = udir + "/py_idpapa_sam2gpd_for_sr_polya.py -l " + args.pal + " -r " + args.par + " -i " + args.short_read + " -o " + tempdir + "/short_reads_polya.gpd"
+		sys.stdout.write("### convert sam to gpd for short reads ###\n")
+		sys.stdout.write(cmd3_1+"\n")
+		call(cmd3_1.split())
+	else:
+		cmd3 = udir + "/py_idpapa_sam2gpd_for_sr_polya.py -l " + args.pal + " -r " + args.par + " -i " + args.short_read + " -o " + tempdir + "/short_reads_polya.gpd"
+	sys.stdout.write("### extract short reads with polyA tail ###\n")
+	sys.stdout.write(cmd3+"\n")
+	call(cmd3.split())
+	# extract genome size from sam
+	cmd4 = udir + "/py_idpapa_extract_genome_size_from_sam.py -i " + args.short_read + " -o " + tempdir + "/genome_size.txt"
+	sys.stdout.write("### extract genome size ###\n")
+	sys.stdout.write(cmd4+"\n")
+	call(cmd4.split())
+	# polish long reads and filter low-quality aligned long reads
+	if args.lrp == "anno":
+		cmd5 = udir + "/py_idpapa_polish.py -t " + args.sst + " -5 " + args.lst + " -3 " + args.rst + " -a " + tempdir + "/isoform_annotation.gpd" + " -i " + tempdir + "/long_reads.gpd" + " -o " + tempdir + "/polished_long_reads.gpd" + " -p " + args.cpu
+	elif args.lrp == "sr":
+		cmd5 = udir + "/py_idpapa_polish.py -t " + args.sst + " -5 " + args.lst + " -3 " + args.rst + " -a " + tempdir + "/short_reads.gpd" + " -i " + tempdir + "/long_reads.gpd" + " -o " + tempdir + "/polished_long_reads.gpd" + " -p " + args.cpu
+	else:
+		cmd5 = udir + "/py_idpapa_polish.py -t " + args.sst + " -5 " + args.lst + " -3 " + args.rst + " -a " + tempdir + "/isoform_annotation.gpd " + tempdir + "/short_reads.gpd" + " -i " + tempdir + "/long_reads.gpd" + " -o " + tempdir + "/polished_long_reads.gpd" + " -p " + args.cpu
+	sys.stdout.write("### polish long reads ###\n")
+	sys.stdout.write(cmd5+"\n")
+	call(cmd5.split())
+	# cat annotation and long reads
+	cmd6 = "cat " + tempdir + "/isoform_annotation.gpd " + tempdir + "/polished_long_reads.gpd >" + tempdir + "/annotation_and_polished_long_reads.gpd"
+	sys.stdout.write("### merge long reads and annotation ###\n")
+	sys.stdout.write(cmd6+"\n")
+	os.system(cmd6)
+	# separate gpd
+	cmd7 = udir + "/py_idpapa_separate_gpd.py -t alignment -i " + tempdir + "/annotation_and_polished_long_reads.gpd" + " -m " + tempdir + "/annotation_and_polished_long_reads.mlt.gpd" + " --singlton_plus " + tempdir + "/annotation_and_polished_long_reads.sgt-plus.gpd" + " --singleton_minus " + tempdir + "/annotation_and_polished_long_reads.sgt-minus.gpd"
+	sys.stdout.write("### separate gpd ###\n")
+	sys.stdout.write(cmd7+"\n")
+	call(cmd7.split())
+	# sort gpd
+	cmd8 = "sort -k3,3 -k5,5n -k6,6n " + tempdir + "/annotation_and_polished_long_reads.sgt-plus.gpd >" + tempdir + "/annotation_and_polished_long_reads.sgt-plus.sort.gpd"
+	cmd9 = "sort -k3,3 -k5,5n -k6,6n " + tempdir + "/annotation_and_polished_long_reads.sgt-minus.gpd >" + tempdir + "/annotation_and_polished_long_reads.sgt-minus.sort.gpd"
+	sys.stdout.write("### sort gpd ###\n")
+	sys.stdout.write(cmd8+"\n")
+	os.system(cmd8)
+	sys.stdout.write(cmd9+"\n")
+	os.system(cmd9)
+	# concatenated 
+	cmd10 = udir + "/py_idpapa_concatenate_singleton_isoform.py -i " + tempdir + "/annotation_and_polished_long_reads.sgt-plus.sort.gpd" + " -o " + tempdir + "/annotation_and_polished_long_reads.sgt-plus.sort.concat.gpd"
+	sys.stdout.write("### concatenate sgt plus ###\n")
+	sys.stdout.write(cmd10+"\n")
+	call(cmd10.split())
+	cmd11 = udir + "/py_idpapa_concatenate_singleton_isoform.py -i " + tempdir + "/annotation_and_polished_long_reads.sgt-minus.sort.gpd" + " -o " + tempdir + "/annotation_and_polished_long_reads.sgt-minus.sort.concat.gpd"
+	sys.stdout.write("### concatenate sgt minus ###\n")
+	sys.stdout.write(cmd11+"\n")
+	call(cmd11.split())
+	cmd12 = udir + "/py_idpapa_concatenate_multiexon_isoform.py -i " + tempdir + "/annotation_and_polished_long_reads.mlt.gpd" + " -o " + tempdir + "/annotation_and_polished_long_reads.mlt.concat.gpd"
+	sys.stdout.write("### concatenate mlt ###\n")
+	sys.stdout.write(cmd12+"\n")
+	call(cmd12.split())
+	# cat plus and minus sgt
+	cmd13 = "cat " + tempdir + "/annotation_and_polished_long_reads.sgt-plus.sort.concat.gpd " + tempdir + "/annotation_and_polished_long_reads.sgt-minus.sort.concat.gpd >" + tempdir + "/annotation_and_polished_long_reads.sgt.sort.concat.gpd"
+	sys.stdout.write("### cat plus and minus sgt ###\n")
+	sys.stdout.write(cmd13+"\n")
+	os.system(cmd13)
+	# isoform constructioon
+	cmd14 = udir + "/py_idpapa_sgt_construction.py -a " + tempdir + "/isoform_annotation.gpd" + " -i " + tempdir + "/annotation_and_polished_long_reads.sgt.sort.concat.gpd" + " -o " + tempdir + "/constructed_singleton_isoform.gpd" + " --lr_known " + args.lk + " --lr_novel " +args.ln
+	sys.stdout.write("### construct singleton isoform ###\n")
+	sys.stdout.write(cmd14+"\n")
+	call(cmd14.split())
+	if args.lrp == "anno":
+		cmd15 = udir + "/py_idpapa_mlt_construction.py -a " + tempdir + "/isoform_annotation.gpd" + " -i " + tempdir + "/annotation_and_polished_long_reads.mlt.concat.gpd" + " -o " + tempdir + "/constructed_multi-exon_isoform.gpd" + " --lr_known " + args.lk + " --lr_novel " +args.ln
+	else:
+		cmd15 = udir + "/py_idpapa_mlt_construction.py -a " + tempdir + "/isoform_annotation.gpd" + " -s " + tempdir + "/short_reads.gpd" + " -i " + tempdir + "/annotation_and_polished_long_reads.mlt.concat.gpd" + " -o " + tempdir + "/constructed_multi-exon_isoform.gpd" + " --lr_known " + args.lk + " --lr_novel " +args.ln
+	sys.stdout.write("### construct multi-exon isoform ###\n")
+	sys.stdout.write(cmd15+"\n")
+	call(cmd15.split())
+	# merge singleton and multi-exon isoform
+	cmd16 = "cat " + tempdir + "/constructed_singleton_isoform.gpd " + tempdir + "/constructed_multi-exon_isoform.gpd >" + tempdir + "/constructed_isoform.gpd"
+	sys.stdout.write("### merge constructed singleton and multi-exon isoform ###\n")
+	sys.stdout.write(cmd16+"\n")
+	os.system(cmd16)
+	# extend constructed isoform
+	cmd17 = udir + "/py_idpapa_extend_constructed_isoform.py -l 20 -g " + tempdir + "/genome_size.txt" + " -i " + tempdir + "/constructed_isoform.gpd" + " -o " + tempdir + "/constructed_isoform.extend20bp.gpd"
+	sys.stdout.write("### extend the constructed isoform ###\n")
+	sys.stdout.write(cmd17+"\n")
+	call(cmd17.split())
+	# assign polA site to specific isoform
+	cmd18 = udir + "/py_idpapa_assign_sr.py -r " + tempdir + "/short_reads_polya.gpd" + " -i " + tempdir + "/constructed_isoform.extend20bp.gpd" + " -o " + tempdir + "/constructed_isoform.extend20bp.sr-polya.gpd" + " -p " + args.cpu
+	sys.stdout.write("### assign polyA site identified by short reads to isoforms ###\n")
+	sys.stdout.write(cmd18+"\n")
+	call(cmd18.split())
+	if args.primer:
+		cmd19 = udir + "/py_idpapa_assign_lr.py -c " + args.primer + " -r " + tempdir + "/polished_long_reads.gpd" + " -i " + tempdir + "/constructed_isoform.extend20bp.gpd" + " -o " + tempdir + "/constructed_isoform.extend20bp.lr-polya.gpd" + " -p " + args.cpu
+	else:
+		cmd19 = udir + "/py_idpapa_assign_lr.py -r " + tempdir + "/polished_long_reads.gpd" + " -i " + tempdir + "/constructed_isoform.extend20bp.gpd" + " -o " + tempdir + "/constructed_isoform.extend20bp.lr-polya.gpd" + " -p " + args.cpu
+	sys.stdout.write("### assign polyA site identified by long reads to isoforms ###\n")
+	sys.stdout.write(cmd19+"\n")
+	call(cmd19.split())
+	# merge polyA sites identified by short reads and long reads
+	cmd20 = udir + "/py_idpapa_merge_polya.py -s " + tempdir + "/constructed_isoform.extend20bp.sr-polya.gpd" + " -l " + tempdir + "/constructed_isoform.extend20bp.lr-polya.gpd" + " -o " + tempdir + "/constructed_isoform.extend20bp.polya.gpd"
+	sys.stdout.write("### merge polyA sites identified by short reads and long reads ###\n")
+	sys.stdout.write(cmd20+"\n")
+	call(cmd20.split())
+	# optimize polyA sites
+	if args.primer:
+		cmd21 = udir + "/py_idpapa_optimize_polya.py -c yes -s " + args.sc + " -l " + args.lc + " -d " + args.ds + " -i " + tempdir + "/constructed_isoform.extend20bp.polya.gpd" + " -o " + tempdir + "/constructed_isoform.extend20bp.polya.optimized.gpd"
+	else:
+		cmd21 = udir + "/py_idpapa_optimize_polya.py -c no -s " + args.sc + " -l " + args.lc + " -d " + args.ds + " -i " + tempdir + "/constructed_isoform.extend20bp.polya.gpd" + " -o " + tempdir + "/constructed_isoform.extend20bp.polya.optimized.gpd"
+	sys.stdout.write("### optimize identified polyA site ###\n")
+	sys.stdout.write(cmd21+"\n")
+	call(cmd21.split())
+	# output file
+	cmd22 = udir + "/py_idpapa_output.py -a " + tempdir + "/isoform_annotation.gpd" + " -i " + tempdir + "/constructed_isoform.extend20bp.polya.optimized.gpd" + " -o " + args.output
+	sys.stdout.write("### output analysis result ###\n")
+	sys.stdout.write(cmd22+"\n")
+	call(cmd22.split())
+	# stat isoform
+	cmd23 = udir + "/py_idpapa_stat.py -i " + args.output + " -o " + args.output + ".stat"
+	sys.stdout.write("### count the isoform number ###\n")
+	sys.stdout.write(cmd23+"\n")
+	call(cmd23.split())
+	sys.stdout.write("### Finish analysis ###\n")
+
+def setup_tempdir(tempd):
+	if not os.path.exists(tempd):
+		os.makedirs(tempd.rstrip('/'))
+	return tempd.rstrip('/')
+
+def do_inputs():
+	parser=argparse.ArgumentParser(description="IDP-APA: Isoform Detection and Prediction and Alternative PolyAdenylation analysis",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+	group1 = parser.add_argument_group('Input options')
+	group1.add_argument('-s','--short_read',type=str,required=True,help="short reads data, sam format file with header lines (e.g. produced by Hisat2 software). Currently, IDP-APA only support strand-specific paired-end RNA-seq. For more details, see README.")
+	group1.add_argument('-l','--long_read',type=str,required=True,help="long reads data, sam format file (e.g. produced by GMAP software). For more details, see README.")
+	group1.add_argument('-a','--annotation',type=str,required=True,help="annotation libray, gtf format file (e.g. GENCODE for human). For more details, see README.")
+	group1.add_argument('-p','--primer',type=str,help="optional parameter. Primer information, csv format file (e.g. produced by PacBio smartanalysis2.3.0 'pbtranscript.py classify' when extracting full-length ROI). For more details, see README.")
+
+	group2 = parser.add_argument_group('Long reads polish options')
+	group2.add_argument('--lrp',type=str,default='anno',choices=["anno","sr","both"],help="splice sites from annotation library and/or short reads are used to polish long reads, suggest 'anno' if available")
+	group2.add_argument('--sst',type=str,default='5',help="maximal tolerance of the distance between annotated splice sites in a given annotation library and under-polished splice sites produced by LR alignment (bp), it is for polishing the splice sites of long reads.")
+	group2.add_argument('--lst',type=str,default='100',help="maximal length of soft-clipped 5'end of aligned long reads for removing low-quality LR alignments (bp)")
+	group2.add_argument('--rst',type=str,default='20',help="maximal length of soft-clipped 3'end of aligned long reads for removing low-quality LR alignments (bp)")
+
+	group3 = parser.add_argument_group('Isoform construction options')
+	group3.add_argument('--lk',type=str,default='1',help="minimal number of long reads for supporting a constructed known isoform")
+	group3.add_argument('--ln',type=str,default='1',help="minimal number of long reads for supporting a constructed novel isoform")
+
+	group4 = parser.add_argument_group('PolyA site identification options')
+	group4.add_argument('--pal',type=str,default='5',help="minimal length of polyA tail in the 3'end of aligned short reads (bp)")
+	group4.add_argument('--par',type=str,default='0.8',help="minimal ratio of A nucleotide in the chosed length of polyA tail")
+	group4.add_argument('--sc',type=str,default='1',help="minimal number of short reads for supporting a identified polyA tail")
+	group4.add_argument('--lc',type=str,default='1',help="minimal number of long reads for supporting a identified polyA tail")
+	group4.add_argument('--ds',type=str,default='10',help="maximal distance between short reads-supported polyA site and long reads-supported one for confirming the short reads-identified polyA sites by long reads (bp)")
+
+	group5 = parser.add_argument_group('Output options')
+	group5.add_argument('-o','--output',type=str,required=True,help="modified gpd format file. For more details, see README.")
+
+	group6 = parser.add_argument_group('Other options')
+	group6.add_argument('--cpu',type=str,default='1',help="number of CPU")
+	group6.add_argument('-t','--tempdir',type=str,required=True,help="temporary directory for saving intermediate file (e.g ./temp)")
+	group6.add_argument('-v','--version',action='version',version='idpapa version 0.1')
+	args = parser.parse_args()
+	return args
+
+if __name__=="__main__":
+	main()
