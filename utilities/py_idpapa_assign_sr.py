@@ -3,7 +3,7 @@ import sys,re,time,argparse
 from multiprocessing import cpu_count,Pool
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	output_gpd = args.output
 	iso_list = get_iso_info(args.isoform)
 	p = Pool(processes=args.cpu)
@@ -13,7 +13,7 @@ def main(args):
 		if not res: continue
 		output_gpd.write(res+"\n")
 	output_gpd.close()
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def generate_tx(input_sr,iso_list):
 	z = 0

@@ -2,9 +2,9 @@
 import sys,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	construction(args.anno,args.input,args.output,args.lr_known,args.lr_novel)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 #=== extract gene region from known gene annotation library ===
 def extract_gene_region_from_annotation(anno_gpd):

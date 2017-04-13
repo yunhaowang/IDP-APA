@@ -2,10 +2,10 @@
 import sys,re,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	dic_iso_cds_start,dic_iso_cds_end = extract_cds(args.anno)
 	output_modified_gpd(args.input,args.output,dic_iso_cds_start,dic_iso_cds_end)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def extract_cds(input_anno):
 	dic_iso_cds_start = {}

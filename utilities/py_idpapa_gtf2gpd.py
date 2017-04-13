@@ -2,10 +2,10 @@
 import sys,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	dic_iso_info = extract_iso_info(args.input)
 	output_gpd(dic_iso_info,args.output,args.add_prefix)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	
 def extract_iso_info(gtf_file): # extract the all information of the isoform
 	dic_iso_info = {}

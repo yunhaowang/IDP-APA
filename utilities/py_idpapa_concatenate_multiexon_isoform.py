@@ -2,10 +2,10 @@
 import sys,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	dic_chr_strand_en = generate_junction_set(args.input)
 	output_gpd(dic_chr_strand_en,args.output)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def generate_junction_set(input_gpd):
 	dic_chr_strand_en = {}

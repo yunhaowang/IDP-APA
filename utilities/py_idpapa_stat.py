@@ -2,7 +2,7 @@
 import sys,re,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	stat_list,known_sgt_na,known_sgt_pa,known_sgt_apa,known_mlt_na,known_mlt_pa,known_mlt_apa,novel_sgt_na,novel_sgt_pa,novel_sgt_apa,novel_mlt_na,novel_mlt_pa ,novel_mlt_apa = stat_results(args.input)
 #	print stat_list
 	print >>args.output, "Sample\APA type\tNA_no_polyA\tPA_with_one_polyA\tAPA_with_multiple_polyA\tTotal isoform number"
@@ -11,7 +11,7 @@ def main(args):
 	print >>args.output, "%s\t%s\t%s\t%s\t%s" % ("Novel singleton isoform", str(novel_sgt_na),str(novel_sgt_pa),str(novel_sgt_apa),str(novel_sgt_na+novel_sgt_pa+novel_sgt_apa))
 	print >>args.output, "%s\t%s\t%s\t%s\t%s" % ("Novel multi-exon isoform",str(novel_mlt_na),str(novel_mlt_pa),str(novel_mlt_apa),str(novel_mlt_na+novel_mlt_pa+novel_mlt_apa))
 	print >>args.output, "%s\t%s\t%s\t%s\t%s" % ("Total isoform number",str(known_sgt_na+known_mlt_na+novel_sgt_na+novel_mlt_na),str(known_sgt_pa+known_mlt_pa+novel_sgt_pa+novel_mlt_pa),str(known_sgt_apa+known_mlt_apa+novel_sgt_apa+novel_mlt_apa),str(sum(stat_list)))
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def stat_results(input_gpd):
 	head = 1

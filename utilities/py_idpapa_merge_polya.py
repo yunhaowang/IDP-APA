@@ -2,10 +2,10 @@
 import sys,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	dic_iso_pa_set = extract_sr_pa(args.short_reads)
 	merge_pa(dic_iso_pa_set,args.long_reads,args.output)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def extract_sr_pa(sr_pa):
 	dic_iso_pa = {}

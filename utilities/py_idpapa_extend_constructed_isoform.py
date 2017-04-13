@@ -2,10 +2,10 @@
 import sys,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	dic_genome_size = extract_genome_size(args.genome_size)
 	extendsion(dic_genome_size,args.length,args.input,args.output)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def extract_genome_size(genome_size):
 	dic_genome_size = {}

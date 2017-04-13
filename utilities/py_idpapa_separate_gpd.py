@@ -2,9 +2,9 @@
 import sys,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	separate(args.type_gpd,args.input,args.multi_exon,args.singlton_plus,args.singleton_minus)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def separate(type,input_gpd,mlt_gpd,sgt_p_gpd,sgt_m_gpd):
 	if type == "annotation":

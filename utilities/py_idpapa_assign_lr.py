@@ -3,7 +3,7 @@ import sys,time,argparse
 from multiprocessing import cpu_count,Pool
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	output_gpd = args.output
 	dic_lr_pa = extract_polya_from_lr(args.long_reads)
 	p = Pool(processes=args.cpu)
@@ -21,7 +21,7 @@ def main(args):
 			if not res: continue
 			output_gpd.write(res+"\n")
 		output_gpd.close()
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def generate_tx_with_csv(input_gpd,flnc,nflncpa,dic_lr_pa):
 	z = 0

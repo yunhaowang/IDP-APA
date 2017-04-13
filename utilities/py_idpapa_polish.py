@@ -3,7 +3,7 @@ import sys,time,argparse
 from multiprocessing import cpu_count,Pool
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	st = args.st
 	s5 = args.s5
 	s3 = args.s3
@@ -17,7 +17,7 @@ def main(args):
 		if not res: continue
 		polished_lr_file.write(res+"\n")
 	polished_lr_file.close()
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def generate_tx(inf,dic_junction,spiceSite_tolerance,softClip_5,softClip_3):
 	z = 0

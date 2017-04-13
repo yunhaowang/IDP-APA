@@ -2,12 +2,12 @@
 import sys,re,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	if args.primer_csv == "yes":
 		optimization_with_csv(args.input,args.output,args.sr_count,args.lr_count,args.distance)
 	else:
 		optimization_without_csv(args.input,args.output,args.sr_count,args.lr_count,args.distance)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 def optimization_with_csv(input_gpd,output_gpd,sr_c,lr_c,distance):
 	for line in input_gpd:

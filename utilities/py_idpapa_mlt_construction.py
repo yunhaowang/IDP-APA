@@ -2,7 +2,7 @@
 import sys,time,argparse
 
 def main(args):
-	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Start analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 	dic_junction_set = extract_junction_set_from_annotation(args.anno)
 	if args.short_reads:
 		dic_junction_sr = extract_junction_from_short_reads(args.short_reads)
@@ -27,7 +27,7 @@ def main(args):
 #	print >>sys.stdout, dic_junction_set
 #	print >>sys.stdout, dic_junction
 	construction(dic_junction,dic_chr_strand_iso,dic_junction_set,args.input,args.output,args.lr_known,args.lr_novel)
-	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
+#	print >>sys.stdout, "Finish analysis: " + time.strftime("%a,%d %b %Y %H:%M:%S")
 
 #=== extract junction site from known gene annotation library ===
 def extract_junction_from_annotation(anno_gpd):
