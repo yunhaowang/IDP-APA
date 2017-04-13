@@ -1,8 +1,8 @@
-IDP-APA (version 0.1)
+# IDP-APA (version 0.1) 
+IDP-APA: Isoform Detection and Prediction, and Alternative PolyAdenylation analysis
 Time-stamp: <2017-02-20 Yunhao Wang, Email: yunhaowang@126.com>
 
-* Introduction
-==============
+## Introduction
 
 Alternative cleavage and polyadenylation (APA), a common phenomenon in eukaryotes, is emerging as an important layer of gene regulation in eukaryotes and plays important regulatory roles in human development and diseases. 
 
@@ -13,16 +13,15 @@ To achieve the isoform-resolved APA analysis, we present a tool called IDP-APA t
 IDP-APA takes the aligned SRs and LRs and a known gene annotation libray as inputs, and outputs the constructed isoforms with assigned polyA sites.
 
 
-* Prerequisite
-==============
+## Prerequisite
 
 - Linux system
 
 - python 2.7
 
 
-* Install and Run IDP-APA
-=========================
+## Install and Run IDP-APA
+
 
 (1) Download the package (e.g. `wget https://github.com/yunhaowang/IDP-APA/archive/v0.1.1.tar.gz`) to a directory of your choice. (e.g. "/home/")
 
@@ -31,34 +30,32 @@ IDP-APA takes the aligned SRs and LRs and a known gene annotation libray as inpu
 (3) Now, you can run IDP-APA by the executable file `/home/IDP-APA-0.1.1/bin/idpapa`. Optionally, you can add IDP-APA into your [PATH environment variable] so that you can run `idpapa` from the command line without having to specify the entire path. For example, you can add one line `export PATH=/home/IDP-APA-0.1.1/bin:$PATH` to your "~/.bashrc".
 
 
-* Inputs of IDP-APA 
-===================
+## Inputs of IDP-APA 
 
-(1) aligned SRs (sam format).
+### (1) aligned SRs (sam format).
 
 - Currently, IDP-APA (version 0.1) only support the paired-end strand-specific RNA-seq data (e.g. prepared using Illumina TruSeq Stranded mRNA/total RNA Library Prep Kit).
 
 - The suggested aligner is Hisat2 (verison 2.0.0-beta was used in our study, see https://ccb.jhu.edu/software/hisat2/index.shtml) with the parameter `-k 1 --rna-strandness RF --no-mixed --no-discordant`. For aligned SR pairs, the alignment flag (second column in sam file) should be 83 (read paired, read mapped in proper pair, read reverse strand, first in pair) vs 163 (read paired, read mapped in proper pair, mate reverse strand, second in pair); or 99 (read paired, read mapped in proper pair, mate reverse strand, first in pair) vs 147 (read paired, read mapped in proper pair, read reverse strand, second in pair).
 
-(2) aligned LRs (sam format).
+### (2) aligned LRs (sam format).
 
 - The suggested aligner is GMAP (version 2016-06-09 was used in our study, see http://research-pub.gene.com/gmap/) with the parameter `-n 0 -f samse --split-output`. We suggest to use both uniquely-aligned LRs (sam format file suffixed by '.uniq' in GMAP output file) and multiply-aligned LRs (sam format file suffixed by  '.mult' in GMAP output file). 
 
 - If using PacBio sequencing, we suggest to run PacBIo Iso-Seq pipeline to get ROI (reads of insert) and full-length non-chimera and non-full-length non-chimera LRs (the command file we used is `ConsensusTools.sh CircularConsensus --minFullPasses 0 --minPredictedAccuracy 70` and `pbtranscript.py classify --detect_chimera_nfl --min_seq_len 100`). 
 
-(3) a known gene annotation library (gtf format).
+### (3) a known gene annotation library (gtf format).
 
 - Considering the RefSeq annotation libray contains some genes/isoforms which have more than one copy in different genomic loci but use same gene/isoform ID, we do not suggest to use it. We suggest to use Ensembl or GENCODE. GENCODE version 25 was used in our study.
 
-(4) an optional file (csv file) if using PacBio sequencing data.
+### (4) an optional file (csv file) if using PacBio sequencing data.
 
 - The output primer information file (suffixed by '.primer_info.csv', see "./example/SIRV_ROI.primer_info.csv"). This file is output when running PacBio Iso-Seq pipeline (getting full length reads, https://github.com/PacificBiosciences/cDNA_primer/wiki/RS_IsoSeq-%28v2.3%29-Tutorial-%231.-Getting-full-length-reads#commandline). In our study, it was produced by the command line version `pbtranscript.py classify`. This file is used to determinate if the polyA tail is detected for each PacBio long read (ROI, reads of insert).
 
 
-* Outputs of IDP-APA
-====================
+## Outputs of IDP-APA
 
-(1) a modified gpd format file. 
+### (1) a modified gpd format file. 
 
 - column 1: gene ID. The ID prefixed by 'novel_loci_sgt_' means that it is a novel singleton gene that has no overlap with any known gene loci; and the ID prefixed by 'novel_loci_mlt_' means that it is a novel multi-exon gene that has no the overlap with any known gene loci.
 
@@ -90,11 +87,10 @@ IDP-APA takes the aligned SRs and LRs and a known gene annotation libray as inpu
 
 - column 15: polyA type. 'NA' means no available polyA site for this isoform, 'PA' means only one available polyA site for this isoform, and 'APA' means multiple available polyA sites for this isoform.
 
-(2) a statistical file (suffixed by ".stat") for all constructed isoforms with identified polyA sites
+### (2) a statistical file (suffixed by ".stat") for all constructed isoforms with identified polyA sites
 
 
-* Usage and Example
-===================
+## Usage and Example
 
 You can use the test data in "./example/" to test IDP-APA.
 
